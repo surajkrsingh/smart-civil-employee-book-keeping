@@ -49,7 +49,6 @@ class Site {
 		add_action( 'admin_menu', array( $this, 'site_admin_menu' ) );
 		add_action( 'plugins_loaded', array( $this, 'register_tables_in_wpdb' ) );
 		add_action( 'register_site_settings', array( $this, 'register_site_settings' ) );
-		add_action( 'rest_api_init', array( $this, 'register_custom_endpoints_for_site' ) );
 	}
 
 	/**
@@ -110,8 +109,8 @@ class Site {
 	 */
 	public function register_tables_in_wpdb() {
 		global $wpdb;
-		$wpdb->site         = $wpdb->prefix . 'site';
-		$wpdb->site_expense = $wpdb->prefix . 'site_expense';
+		$wpdb->site             = $wpdb->prefix . 'site';
+		$wpdb->site_expense     = $wpdb->prefix . 'site_expense';
 	}
 
 	/**
@@ -181,33 +180,6 @@ class Site {
 	 */
 	public function add_site_list_callback() {
 		include_once SCEBK_PLUGIN_PATH . 'inc/show-site-list.php';
-	}
-
-	/**
-	 * Function to resgiter custom endpoints for site info.
-	 */
-	public function register_custom_endpoints_for_site() {
-		require_once ABSPATH . 'wp-includes/rest-api/class-wp-rest-request.php';
-			register_rest_route(
-				'user/v1',
-				'site-info/(?P<user_id>\d+)',
-				array(
-					'method'   => 'GET',
-					'callback' => array( $this, 'get_site_info_by_id' ),
-				)
-			);
-	}
-
-	/**
-	 * Function get site details by Id.
-	 *
-	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
-	 */
-	public function get_site_info_by_id( $request ) {
-		$response = new WP_REST_Response( array( 'hello' ) );
-		$response->set_status( 200 );
-		return $response;
 	}
 
 }

@@ -38,6 +38,7 @@ if ( ! defined( 'SCEBK_PLUGIN_DIR_NAME' ) ) {
 
 require_once SCEBK_PLUGIN_PATH . 'inc/classes/class-scebk.php';
 require_once SCEBK_PLUGIN_PATH . 'inc/classes/class-site.php';
+require_once SCEBK_PLUGIN_PATH . 'inc/classes/class-scebk-restapi.php';
 require_once SCEBK_PLUGIN_PATH . 'inc/custom-function.php';
 require_once SCEBK_PLUGIN_PATH . 'inc/customize-admin-site.php';
 
