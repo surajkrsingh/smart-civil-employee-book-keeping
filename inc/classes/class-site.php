@@ -93,6 +93,7 @@ class Site {
 				site_expense_id bigint(20) NOT NULL AUTO_INCREMENT,
 				site_id bigint(20) NOT NULL,
 				taken_from varchar(25) DEFAULT NULL,
+				amount bigint(20) NOT NULL,
 				expense_description varchar(15) DEFAULT NULL,
 				taken_on date,
 				PRIMARY KEY (site_expense_id),
@@ -109,8 +110,8 @@ class Site {
 	 */
 	public function register_tables_in_wpdb() {
 		global $wpdb;
-		$wpdb->site             = $wpdb->prefix . 'site';
-		$wpdb->site_expense     = $wpdb->prefix . 'site_expense';
+		$wpdb->site         = $wpdb->prefix . 'site';
+		$wpdb->site_expense = $wpdb->prefix . 'site_expense';
 	}
 
 	/**
@@ -170,7 +171,7 @@ class Site {
 	 * @return void
 	 */
 	public function add_site_expense_callback() {
-		include_once SCEBK_PLUGIN_PATH . 'inc/add-new-site-form.php';
+		include_once SCEBK_PLUGIN_PATH . 'inc/add-site-expense-form.php';
 	}
 
 	/**

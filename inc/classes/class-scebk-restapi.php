@@ -52,6 +52,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * Function to resgiter custom endpoints for site info.
 	 */
 	public function register_custom_endpoints_for_site() {
+		//http://emp.test/wp-json/scebk/v1/site/?user_id=2
 		register_rest_route(
 			'scebk/v1',
 			'/site',
@@ -80,7 +81,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	public function get_all_site_by_user_id( $request ) {
 
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'site';
+		$table_site = $wpdb->prefix . 'site';
+		$table_site_expense = $wpdb->prefix . 'site_expense';
 		$parameters = $request->get_params();
 		$user_id    = $parameters['user_id'];
 
@@ -92,11 +94,21 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		if ( empty( $sites ) ) {
 			$query = $wpdb->prepare(
-				"SELECT * FROM $table_name where user_id = %d", //phpcs:ignore
+				"SELECT * FROM $table_site where user_id = %d", //phpcs:ignore
 				$user_id
 			);
 
 			$sites = $wpdb->get_results( $query ); //phpcs:ignore
+
+			$query = $wpdb->prepare(
+				"SELECT * FROM $table_site_expense where site_id = %d", //phpcs:ignore
+				$sites->site_id
+			);
+
+			$site_expenses = $wpdb->get_results( $query ); //phpcs:ignore
+			// foreach ( $sites as $site ) {
+			// 	//if ( )
+			// }
 			set_transient( 'user' . $user_id, $sites, 300 );
 		}
 

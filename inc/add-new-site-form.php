@@ -9,15 +9,15 @@
 
 if ( isset( $_POST['submit'] ) ) {
 
-    global $wpdb;
-	$table_name=$wpdb->prefix.'site';
-	$file_path = wp_handle_upload( $_FILES[ 'site_pic_path' ] , array('test_form' => false) );
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'site';
+	$file_path  = wp_handle_upload( $_FILES['site_pic_path'], array( 'test_form' => false ) );
 
-	$file_url  = '';
-	if( ! empty( $file_path ) ) {
+	$file_url = '';
+	if ( ! empty( $file_path ) ) {
 		$file_url = filter_var( $file_path['url'], FILTER_SANITIZE_URL );
 	}
- 	
+
 	$default = array(
 		'user_id'         => get_current_user_id(),
 		'site_name'       => '',
@@ -27,24 +27,23 @@ if ( isset( $_POST['submit'] ) ) {
 		'site_rate'       => '',
 		'site_height'     => '',
 		'site_pic_path'   => $file_url,
-		'site_status'     => 1
-	   );
+		'site_status'     => 1,
+	);
 
 	$item = shortcode_atts( $default, $_POST );
-	
+
 	if ( wp_verify_nonce( sanitize_key( $_POST['save_site_info'] ), 'scebk_site_nonce_action' ) ) {
 		$wpdb->insert( $table_name, $item );
 	} else {
 		esc_html_e( 'Failed Nonce Verification ', 'scebk' );
 	}
-
 }
 
 ?>
 <div class="wrap">
 	<h1 id="add-new-user">Add New Site</h1>
 	<p>Add a new site which is newly open.</p>
-	<form method="post" name="createsite" id="createsite" class="validate" novalidate="novalidate" enctype="multipart/form-data">
+	<form method="post" name="createsite" id="createsite" class="site-form validate" novalidate="novalidate" enctype="multipart/form-data">
 		<table class="form-table">
 			<tr class="form-field form-required">
 				<th scope="row"><label for="site_name">Site Name <span class="description">(required)</span></label></th>
@@ -64,7 +63,7 @@ if ( isset( $_POST['submit'] ) ) {
 			</tr>
 				<tr class="form-field">
 				<th scope="row"><label for="site_address">Address </label></th>
-				<td><textarea name="site_address" id="site_address" value="" /></textarea></td>
+				<td><textarea name="site_address" id="site_address" value=""></textarea></td>
 			</tr>
 			<tr class="form-field">
 				<th scope="row"><label for="site_start_date">Start Date</label></th>
@@ -75,7 +74,7 @@ if ( isset( $_POST['submit'] ) ) {
 				<td><input name="site_pic_path" type="file" id="site_pic_path" value="" /></td>
 			</tr>
 		</table>
-		<?php 
+		<?php
 		wp_nonce_field( 'scebk_site_nonce_action', 'save_site_info' );
 		submit_button( 'Add New Site' );
 		?>
