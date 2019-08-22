@@ -74,7 +74,7 @@ class SCEBK {
 					emp_join_date date,
 					emp_leave_Date date DEFAULT NULL,
 					emp_rate int(3),
-					emp_aadhar_no int(20),
+					emp_aadhar_no varchar(20),
 					emp_designation varchar(25),
 					emp_pic_path varchar(255),
 					PRIMARY KEY (emp_id)
