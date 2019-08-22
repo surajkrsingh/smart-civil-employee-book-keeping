@@ -52,28 +52,15 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * Function to resgiter custom endpoints for site info.
 	 */
 	public function register_custom_endpoints_for_site() {
-		// http://emp.test/wp-json/scebk/v1/site/?user_id=2
+		//http://emp.test/wp-json/scebk/v1/site/?user_id=2
 		//https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/
 		register_rest_route(
 			'scebk/v1',
-			'/site',
-			array(
-				'method'   => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_all_site_by_user_id' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
-				'args'     => array(
-					'context'       => array(
-						'default' => 'view',
-					),
-					'wp_rest_nonce' => array(
-						'validate_callback' => array( $this, 'create_wp_rest_nonce' ),
-					),
-				),
-			),
+			'/add-site',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'add_new_site' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
 				'args'     => $this->get_endpoint_args_for_item_schema( true ),
 			)
 		);
@@ -85,7 +72,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			array(
 				'method'   => WP_REST_Server::READABLE,
 				'callback' => array( $this, 'get_all_site_by_user_id' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
 				'args'     => array(
 					'context'       => array(
 						'default' => 'view',
@@ -122,8 +109,18 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		if ( empty( $sites ) ) {
 			// @codingStandardsIgnoreStart
 			$query = $wpdb->prepare(
-				"select 
-				*
+				"select
+					site.site_id,
+					site_name,
+					site_contractor,
+					site_address,
+					site_start_date,
+					site_rate,
+					site_height,
+					site_pic_path,
+					site_status,
+					total_amount,
+					total_employee
 				from
 				(
 					select
@@ -148,17 +145,17 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 				left join
 					(
 						select
-							$table_employee.site_id,
+							$table_employee.site_id as emp_site_id,
 							count(emp_id) as total_employee
 						from
 							$table_employee
 						group by
 							$table_employee.site_id
-					) as emp on site.site_id = emp.site_id",
+					) as emp on site.site_id = emp.emp_site_id",
 				$user_id
 			);
-
 			$sites = $wpdb->get_results( $query, 'ARRAY_A' );
+			//error_log( print_r($sites,true) );die();
 			// @codingStandardsIgnoreEnd
 			set_transient( 'user' . $user_id, $sites, 60 );
 		}
@@ -176,20 +173,36 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @return array $response Json data.
 	 */
 	public function add_new_site( $request ) {
-
 		global $wpdb;
 		$table_site = $wpdb->prefix . 'site';
-		return json_encode( $request );
-		die();
-		$item = '';
-		if ( function_exists( 'slug_some_function_to_create_item' ) ) {
-			$data = slug_some_function_to_create_item( $item );
-			if ( is_array( $data ) ) {
-				return new WP_REST_Response( $data, 200 );
-			}
+		$parameters = $request->get_params();
+		$default = array(
+			'user_id'         => get_current_user_id(),
+			'site_name'       => '',
+			'site_contractor' => '',
+			'site_address'    => '',
+			'site_start_date' => '',
+			'site_rate'       => '',
+			'site_height'     => '',
+			'site_pic_path'   => '',
+			'site_status'     => 1,
+		);
+
+		$item = shortcode_atts( $default, $parameters );
+		$item = $wpdb->insert( $table_site, $item ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'New site created successfully',
+					'status'  => 200,
+				),
+				200
+			);
 		}
 
-		return new WP_Error( 'cant-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
 	}
 
 	/**

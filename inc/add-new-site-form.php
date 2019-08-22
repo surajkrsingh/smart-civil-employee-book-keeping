@@ -33,7 +33,7 @@ if ( isset( $_POST['submit'] ) ) {
 	$item = shortcode_atts( $default, $_POST );
 
 	if ( wp_verify_nonce( sanitize_key( $_POST['save_site_info'] ), 'scebk_site_nonce_action' ) ) {
-		$wpdb->insert( $table_name, $item );
+		$wpdb->insert( $table_name, $item ); //phpcs:ignore
 	} else {
 		esc_html_e( 'Failed Nonce Verification ', 'scebk' );
 	}
