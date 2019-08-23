@@ -52,8 +52,6 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * Function to resgiter custom endpoints for site info.
 	 */
 	public function register_custom_endpoints_for_site() {
-		//http://emp.test/wp-json/scebk/v1/site/?user_id=2
-		//https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/
 		register_rest_route(
 			'scebk/v1',
 			'/add-site',
@@ -61,18 +59,45 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'add_new_site' ),
 				//'permission_callback' => array( $this, 'check_site_permission' ),
-				'args'     => $this->get_endpoint_args_for_item_schema( true ),
+			)
+		);
+		register_rest_route(
+			'scebk/v1',
+			'/update-site',
+			array(
+				'methods'  => WP_REST_Server::EDITABLE,
+				'callback' => array( $this, 'update_site' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
-		//http://emp.test/wp-json/scebk/v1/site/2
 		register_rest_route(
 			'scebk/v1',
-			'/site/(?P<user_id>[\d]+)',
+			'/delete-site/(?P<site_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::DELETABLE,
+				'callback' => array( $this, 'delete_site' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/show-site/(?P<site_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'show_site' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/all-site/(?P<user_id>[\d]+)',
 			array(
 				'method'   => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_all_site_by_user_id' ),
-				//'permission_callback' => array( $this, 'check_site_permission' ),
+				'callback' => array( $this, 'show_all_site_by_user_id' ),
+				'permission_callback' => array( $this, 'check_site_permission' ),
 				'args'     => array(
 					'context'       => array(
 						'default' => 'view',
@@ -83,6 +108,66 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/login',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'login_in_site' ),
+			)
+		);
+
+		// Site expense routes.
+		register_rest_route(
+			'scebk/v1',
+			'/show-site-all-expense/(?P<site_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'show_site_all_expense_by_id' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/show-site-expense',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'show_site_expense_date' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/add-site-expense',
+			array(
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => array( $this, 'add_new_site_expense' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/update-site-expense',
+			array(
+				'methods'  => WP_REST_Server::EDITABLE,
+				'callback' => array( $this, 'update_site_expense' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/delete-site-expense/(?P<site_expense_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::DELETABLE,
+				'callback' => array( $this, 'delete_expense_site' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
 	}
 
 	/**
@@ -91,7 +176,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @param WP_REST_Request $request User request.
 	 * @return array $response Json data.
 	 */
-	public function get_all_site_by_user_id( $request ) {
+	public function show_all_site_by_user_id( $request ) {
 
 		global $wpdb;
 		$table_site         = $wpdb->prefix . 'site';
@@ -206,6 +291,350 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function update_site( $request ) {
+		global $wpdb;
+		$table_site = $wpdb->prefix . 'site';
+		$parameters = $request->get_params();
+		$where      = array(
+			'site_id' => $parameters['site_id'],
+		);
+		$item       = $wpdb->update( $table_site, $parameters, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Site updated successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function delete_site( $request ) {
+		global $wpdb;
+		$table_site = $wpdb->prefix . 'site';
+		$parameters = $request->get_params();
+		$where      = array(
+			'site_id' => $parameters['site_id'],
+		);
+		$item       = $wpdb->delete( $table_site, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Site deleted successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function show_site( $request ) {
+
+		global $wpdb;
+		$table_site         = $wpdb->prefix . 'site';
+		$table_site_expense = $wpdb->prefix . 'site_expense';
+		$table_employee     = $wpdb->prefix . 'employee';
+		$parameters         = $request->get_params();
+		$site_id            = $parameters['site_id'];
+
+		if ( empty( $site_id ) ) {
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		}
+
+		$site = get_transient( 'site' . $site_id );
+
+		if ( empty( $site ) ) {
+			// @codingStandardsIgnoreStart
+			$query = $wpdb->prepare(
+				"select
+					site.site_id,
+					site_name,
+					site_contractor,
+					site_address,
+					site_start_date,
+					site_rate,
+					site_height,
+					site_pic_path,
+					site_status,
+					total_amount,
+					total_employee
+				from
+				(
+					select
+						$table_site.site_id,
+						site_name,
+						site_contractor,
+						site_address,
+						site_start_date,
+						site_rate,
+						site_height,
+						site_pic_path,
+						site_status,
+						sum(amount) as total_amount
+					from
+						$table_site
+						left join $table_site_expense on $table_site_expense.site_id = $table_site.site_id
+					where
+						$table_site.site_id = %d
+					group by
+						$table_site.site_id
+				) as site
+				left join
+					(
+						select
+							$table_employee.site_id as emp_site_id,
+							count(emp_id) as total_employee
+						from
+							$table_employee
+						group by
+							$table_employee.site_id
+					) as emp on site.site_id = emp.emp_site_id",
+				$site_id
+			);
+			$site = $wpdb->get_results( $query, 'ARRAY_A' );
+
+			// @codingStandardsIgnoreEnd
+			set_transient( 'site' . $site_id, $site, 60 );
+		}
+
+		$response = new WP_REST_Response( $site );
+		$response->set_status( 200 );
+
+		return $response;
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function login_in_site( $request ) {
+		global $wpdb;
+		$table_site = $wpdb->prefix . 'users';
+		$parameters = $request->get_params();
+		$response   = wp_authenticate( $parameters['user_name'], $parameters['user_password'] );
+		if ( ! empty( $response->data ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'user-info' => $response,
+					'message'   => 'Logged in successfully',
+					'status'    => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'unauthenticated', __( 'Invalid authentication', 'scebk' ), array( 'status' => 401 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function add_new_site_expense( $request ) {
+		global $wpdb;
+		$parameters         = $request->get_params();
+		$table_site_expense = $wpdb->prefix . 'site_expense';
+		$site_id            = $parameters['site_id'];
+
+		if ( empty( $site_id ) ) {
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		}
+
+		$default = array(
+			'site_id'             => $site_id,
+			'taken_from'          => '',
+			'amount'              => 0,
+			'expense_description' => '',
+			'taken_on'            => '',
+		);
+
+		$item = shortcode_atts( $default, $parameters );
+		$item = $wpdb->insert( $table_site_expense, $item ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'New site expensecreated successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function show_site_all_expense_by_id( $request ) {
+
+		global $wpdb;
+		$table_site_expense = $wpdb->prefix . 'site_expense';
+		$parameters         = $request->get_params();
+		$site_id            = $parameters['site_id'];
+
+		if ( empty( $site_id ) ) {
+			return;
+		}
+
+		$site = get_transient( 'site_payment' . $site_id );
+
+		if ( empty( $site ) ) {
+
+			// @codingStandardsIgnoreStart
+			$query = $wpdb->prepare(
+				"select * from $table_site_expense where site_id = %d",
+				$site_id
+			);
+			$site = $wpdb->get_results( $query, 'ARRAY_A' );
+			// @codingStandardsIgnoreEnd
+
+			set_transient( 'site_payment' . $site_id, $site, 60 );
+			die();
+		}
+
+		$response = new WP_REST_Response( $site );
+		$response->set_status( 200 );
+
+		return $response;
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function show_site_expense_date( $request ) {
+
+		global $wpdb;
+		$table_site_expense = $wpdb->prefix . 'site_expense';
+		$parameters = $request->get_params();
+
+		if ( empty( $parameters['taken_on'] ) || empty( $parameters['site_id'] ) ) {
+			return null;
+		}
+		$taken_on = $parameters['taken_on'];
+		$site_id  = $parameters['site_id'];
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"select * from $table_site_expense where site_id = %s and taken_on = %s",
+			$site_id,
+			$taken_on
+		);
+		$site = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
+
+		$response = new WP_REST_Response( $site );
+		$response->set_status( 200 );
+
+		return $response;
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function delete_expense_site( $request ) {
+
+		global $wpdb;
+		$table_site_expense = $wpdb->prefix . 'site_expense';
+
+		$parameters = $request->get_params();
+
+		if ( empty( $parameters['site_expense_id'] ) ) {
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		}
+
+		$where = array(
+			'site_expense_id' => $parameters['site_expense_id'],
+		);
+
+		$item = $wpdb->delete( $table_site_expense, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Site expense deleted successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function update_site_expense( $request ) {
+		global $wpdb;
+		$table_site_expense = $wpdb->prefix . 'site_expense';
+		$parameters         = $request->get_params();
+		$where              = array(
+			'site_expense_id' => $parameters['site_expense_id'],
+		);
+		$item       = $wpdb->update( $table_site_expense, $parameters, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Site expense updated successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
 	 * Function to check user is authenticate or not.
 	 *
 	 * @param WP_Rest_Request $request array.
@@ -235,10 +664,4 @@ $query = $wpdb->prepare(
 	);
 
 $site_expenses = $wpdb->get_results( $query , 'ARRAY_A' ); //phpcs:ignore
-
-"SELECT $table_site.site_id, site_name, site_contractor,site_address, site_start_date,
-site_rate, site_height,site_pic_path,site_status, sum(amount) as amount
-from wp_site left join $table_site_expense on wp_site_expense.site_id = wp_site.site_id
-where user_id=%d GROUP by $table_site.site_id"
-
- */
+*/

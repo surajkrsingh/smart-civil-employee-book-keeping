@@ -13,7 +13,7 @@
  * @return boolean
  */
 function is_site_administrator() {
-	return in_array( 'administrator', wp_get_current_user()->roles );
+	return in_array( 'administrator', wp_get_current_user()->roles ); //phpcs:ignore
 }
 
 /**
@@ -29,6 +29,11 @@ function remove_menu() {
 		remove_menu_page( 'plugins.php' );
 		remove_menu_page( 'themes.php' );
 		remove_submenu_page( 'index.php', 'update-core.php' );
+		remove_submenu_page( 'options-general.php', 'options-permalink.php' );
+		remove_submenu_page( 'options-general.php', 'options-writing.php' );
+		remove_submenu_page( 'options-general.php', 'options-reading.php' );
+		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
+		remove_submenu_page( 'options-general.php', 'privacy.php' );
 	}
 
 	remove_menu_page( 'edit.php' );
@@ -36,11 +41,6 @@ function remove_menu() {
 	remove_menu_page( 'edit-comments.php' );
 	remove_menu_page( 'tools.php' );
 	remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
-	remove_submenu_page( 'options-general.php', 'options-writing.php' );
-	remove_submenu_page( 'options-general.php', 'options-reading.php' );
-	remove_submenu_page( 'options-general.php', 'options-discussion.php' );
-	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
-	remove_submenu_page( 'options-general.php', 'privacy.php' );
 	remove_action( 'admin_menu', '_add_themes_utility_last', 101 );
 
 	// Remove customize option.

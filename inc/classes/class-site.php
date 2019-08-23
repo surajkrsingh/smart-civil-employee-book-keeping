@@ -48,7 +48,6 @@ class Site {
 	protected function setup() {
 		add_action( 'admin_menu', array( $this, 'site_admin_menu' ) );
 		add_action( 'plugins_loaded', array( $this, 'register_tables_in_wpdb' ) );
-		add_action( 'register_site_settings', array( $this, 'register_site_settings' ) );
 	}
 
 	/**
