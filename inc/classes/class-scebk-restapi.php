@@ -15,6 +15,53 @@
  * @author Suraj kumar Singh
  */
 class SCEBK_RestAPI extends WP_REST_Controller {
+
+
+	/**
+	 * Alias for site table.
+	 *
+	 * @since  1.0
+	 * @access public
+	 * @var    string $table_site Site.
+	 */
+	public $table_site;
+
+	/**
+	 * Alias for site expesnse table.
+	 *
+	 * @since  1.0
+	 * @access public
+	 * @var    string $table_site_expense Site expense.
+	 */
+	public $table_site_expense;
+
+	/**
+	 * Alias for employee table.
+	 *
+	 * @since  1.0
+	 * @access public
+	 * @var    string $table_site Employee.
+	 */
+	public $table_employee;
+
+	/**
+	 * Alias for employee expense table.
+	 *
+	 * @since  1.0
+	 * @access public
+	 * @var    string $table_site Employee expense.
+	 */
+	public $table_employee_expense;
+
+	/**
+	 * Alias for attendance table.
+	 *
+	 * @since  1.0
+	 * @access public
+	 * @var    string $table_site Attendance.
+	 */
+	public $table_attendance;
+
 	/**
 	 * Instance of this class.
 	 *
@@ -23,6 +70,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @var    object    $instance    Instance of this class.
 	 */
 	protected static $instance;
+
 	/**
 	 * Returns new or existing instance.
 	 *
@@ -44,6 +92,14 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @since 1.0
 	 */
 	protected function setup() {
+
+		global $wpdb;
+		$this->table_site             = $wpdb->prefix . 'site';
+		$this->table_site_expense     = $wpdb->prefix . 'site_expense';
+		$this->table_employee         = $wpdb->prefix . 'employee';
+		$this->table_attendance       = $wpdb->prefix . 'attendance';
+		$this->table_employee_expense = $wpdb->prefix . 'employee_expense';
+
 		add_action( 'rest_api_init', array( $this, 'register_custom_endpoints_for_site' ) );
 	}
 
@@ -97,7 +153,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			array(
 				'method'   => WP_REST_Server::READABLE,
 				'callback' => array( $this, 'show_all_site_by_user_id' ),
-				'permission_callback' => array( $this, 'check_site_permission' ),
+				//'permission_callback' => array( $this, 'check_site_permission' ),
 				'args'     => array(
 					'context'       => array(
 						'default' => 'view',
@@ -113,7 +169,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/login',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::EDITABLE,
 				'callback' => array( $this, 'login_in_site' ),
 			)
 		);
@@ -177,16 +233,12 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @return array $response Json data.
 	 */
 	public function show_all_site_by_user_id( $request ) {
-
 		global $wpdb;
-		$table_site         = $wpdb->prefix . 'site';
-		$table_site_expense = $wpdb->prefix . 'site_expense';
-		$table_employee     = $wpdb->prefix . 'employee';
-		$parameters         = $request->get_params();
-		$user_id            = $parameters['user_id'];
+		$parameters = $request->get_params();
+		$user_id    = $parameters['user_id'];
 
 		if ( empty( $user_id ) ) {
-			return;
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
 		}
 
 		$sites = get_transient( 'user' . $user_id );
@@ -209,7 +261,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 				from
 				(
 					select
-						$table_site.site_id,
+						$this->table_site.site_id,
 						site_name,
 						site_contractor,
 						site_address,
@@ -220,22 +272,22 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 						site_status,
 						sum(amount) as total_amount
 					from
-						$table_site
-						left join $table_site_expense on $table_site_expense.site_id = $table_site.site_id
+						$this->table_site
+						left join $this->table_site_expense on $this->table_site_expense.site_id = $this->table_site.site_id
 					where
 						user_id = %d
 					group by
-						$table_site.site_id
+						$this->table_site.site_id
 				) as site
 				left join
 					(
 						select
-							$table_employee.site_id as emp_site_id,
+							$this->table_employee.site_id as emp_site_id,
 							count(emp_id) as total_employee
 						from
-							$table_employee
+							$this->table_employee
 						group by
-							$table_employee.site_id
+							$this->table_employee.site_id
 					) as emp on site.site_id = emp.emp_site_id",
 				$user_id
 			);
@@ -259,9 +311,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 */
 	public function add_new_site( $request ) {
 		global $wpdb;
-		$table_site = $wpdb->prefix . 'site';
 		$parameters = $request->get_params();
-		$default = array(
+		$default    = array(
 			'user_id'         => get_current_user_id(),
 			'site_name'       => '',
 			'site_contractor' => '',
@@ -274,7 +325,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		);
 
 		$item = shortcode_atts( $default, $parameters );
-		$item = $wpdb->insert( $table_site, $item ); //phpcs:ignore
+		$item = $wpdb->insert( $this->table_site, $item ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
 
@@ -298,12 +349,12 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 */
 	public function update_site( $request ) {
 		global $wpdb;
-		$table_site = $wpdb->prefix . 'site';
 		$parameters = $request->get_params();
 		$where      = array(
 			'site_id' => $parameters['site_id'],
 		);
-		$item       = $wpdb->update( $table_site, $parameters, $where ); //phpcs:ignore
+
+		$item = $wpdb->update( $this->table_site, $parameters, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
 
@@ -328,12 +379,11 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 */
 	public function delete_site( $request ) {
 		global $wpdb;
-		$table_site = $wpdb->prefix . 'site';
 		$parameters = $request->get_params();
 		$where      = array(
 			'site_id' => $parameters['site_id'],
 		);
-		$item       = $wpdb->delete( $table_site, $where ); //phpcs:ignore
+		$item       = $wpdb->delete( $this->table_site, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
 
@@ -356,13 +406,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @return array $response Json data.
 	 */
 	public function show_site( $request ) {
-
 		global $wpdb;
-		$table_site         = $wpdb->prefix . 'site';
-		$table_site_expense = $wpdb->prefix . 'site_expense';
-		$table_employee     = $wpdb->prefix . 'employee';
-		$parameters         = $request->get_params();
-		$site_id            = $parameters['site_id'];
+		$parameters = $request->get_params();
+		$site_id    = $parameters['site_id'];
 
 		if ( empty( $site_id ) ) {
 			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
@@ -388,7 +434,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 				from
 				(
 					select
-						$table_site.site_id,
+						$this->table_site.site_id,
 						site_name,
 						site_contractor,
 						site_address,
@@ -399,22 +445,22 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 						site_status,
 						sum(amount) as total_amount
 					from
-						$table_site
-						left join $table_site_expense on $table_site_expense.site_id = $table_site.site_id
+						$this->table_site
+						left join $this->table_site_expense on $this->table_site_expense.site_id = $this->table_site.site_id
 					where
-						$table_site.site_id = %d
+						$this->table_site.site_id = %d
 					group by
-						$table_site.site_id
+						$this->table_site.site_id
 				) as site
 				left join
 					(
 						select
-							$table_employee.site_id as emp_site_id,
+							$this->table_employee.site_id as emp_site_id,
 							count(emp_id) as total_employee
 						from
-							$table_employee
+							$this->table_employee
 						group by
-							$table_employee.site_id
+							$this->table_employee.site_id
 					) as emp on site.site_id = emp.emp_site_id",
 				$site_id
 			);
@@ -464,9 +510,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 */
 	public function add_new_site_expense( $request ) {
 		global $wpdb;
-		$parameters         = $request->get_params();
-		$table_site_expense = $wpdb->prefix . 'site_expense';
-		$site_id            = $parameters['site_id'];
+		$parameters = $request->get_params();
+		$site_id    = $parameters['site_id'];
 
 		if ( empty( $site_id ) ) {
 			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
@@ -481,7 +526,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		);
 
 		$item = shortcode_atts( $default, $parameters );
-		$item = $wpdb->insert( $table_site_expense, $item ); //phpcs:ignore
+		$item = $wpdb->insert( $this->table_site_expense, $item ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
 
@@ -506,7 +551,6 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	public function show_site_all_expense_by_id( $request ) {
 
 		global $wpdb;
-		$table_site_expense = $wpdb->prefix . 'site_expense';
 		$parameters         = $request->get_params();
 		$site_id            = $parameters['site_id'];
 
@@ -514,21 +558,14 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			return;
 		}
 
-		$site = get_transient( 'site_payment' . $site_id );
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"select * from $this->table_site_expense where site_id = %d",
+			$site_id
+		);
 
-		if ( empty( $site ) ) {
-
-			// @codingStandardsIgnoreStart
-			$query = $wpdb->prepare(
-				"select * from $table_site_expense where site_id = %d",
-				$site_id
-			);
-			$site = $wpdb->get_results( $query, 'ARRAY_A' );
-			// @codingStandardsIgnoreEnd
-
-			set_transient( 'site_payment' . $site_id, $site, 60 );
-			die();
-		}
+		$site = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
 
 		$response = new WP_REST_Response( $site );
 		$response->set_status( 200 );
@@ -545,7 +582,6 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	public function show_site_expense_date( $request ) {
 
 		global $wpdb;
-		$table_site_expense = $wpdb->prefix . 'site_expense';
 		$parameters = $request->get_params();
 
 		if ( empty( $parameters['taken_on'] ) || empty( $parameters['site_id'] ) ) {
@@ -555,7 +591,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		$site_id  = $parameters['site_id'];
 		// @codingStandardsIgnoreStart
 		$query = $wpdb->prepare(
-			"select * from $table_site_expense where site_id = %s and taken_on = %s",
+			"select * from $this->table_site_expense where site_id = %s and taken_on = %s",
 			$site_id,
 			$taken_on
 		);
@@ -577,8 +613,6 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	public function delete_expense_site( $request ) {
 
 		global $wpdb;
-		$table_site_expense = $wpdb->prefix . 'site_expense';
-
 		$parameters = $request->get_params();
 
 		if ( empty( $parameters['site_expense_id'] ) ) {
@@ -589,7 +623,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'site_expense_id' => $parameters['site_expense_id'],
 		);
 
-		$item = $wpdb->delete( $table_site_expense, $where ); //phpcs:ignore
+		$item = $wpdb->delete( $this->table_site_expense, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
 
@@ -613,12 +647,12 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 */
 	public function update_site_expense( $request ) {
 		global $wpdb;
-		$table_site_expense = $wpdb->prefix . 'site_expense';
 		$parameters         = $request->get_params();
 		$where              = array(
 			'site_expense_id' => $parameters['site_expense_id'],
 		);
-		$item       = $wpdb->update( $table_site_expense, $parameters, $where ); //phpcs:ignore
+
+		$item  = $wpdb->update( $this->table_site_expense, $parameters, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
 

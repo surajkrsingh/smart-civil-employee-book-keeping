@@ -153,6 +153,7 @@ class Employee {
 					emp_aadhar_no varchar(20),
 					emp_designation varchar(25),
 					emp_pic_path varchar(255),
+					emp_status int DEFAULT 1,
 					PRIMARY KEY (emp_id)
 				)ENGINE = InnoDB DEFAULT CHARSET=utf8',
 				$table_name
