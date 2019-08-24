@@ -238,7 +238,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/show-employee/(?P<employee_id>[\d]+)',
+			'/show-employee/(?P<emp_id>[\d]+)',
 			array(
 				'methods'  => WP_REST_Server::READABLE,
 				'callback' => array( $this, 'show_employee' ),
@@ -258,7 +258,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/delete-employee/(?P<employee_id>[\d]+)',
+			'/delete-employee/(?P<emp_id>[\d]+)',
 			array(
 				'methods'  => WP_REST_Server::DELETABLE,
 				'callback' => array( $this, 'delete_employee' ),
@@ -272,6 +272,108 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			array(
 				'methods'  => WP_REST_Server::EDITABLE,
 				'callback' => array( $this, 'update_employee' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		// Employee expense routes.
+		register_rest_route(
+			'scebk/v1',
+			'/show-employee-all-expense/(?P<emp_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'show_employee_all_expense_by_id' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/show-employee-expense',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'show_employee_expense_date' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/add-employee-expense',
+			array(
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => array( $this, 'add_new_employee_expense' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/update-employee-expense',
+			array(
+				'methods'  => WP_REST_Server::EDITABLE,
+				'callback' => array( $this, 'update_employee_expense' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/delete-employee-expense/(?P<emp_expense_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::DELETABLE,
+				'callback' => array( $this, 'delete_employee_expense' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		// Employee attendance routes.
+		register_rest_route(
+			'scebk/v1',
+			'/show-employee-all-attendance/(?P<emp_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'show_employee_all_attendance_by_id' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/show-employee-attendance',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'show_employee_attendance_date' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/add-employee-attendance',
+			array(
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => array( $this, 'add_new_employee_attendance' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/update-employee-attendance',
+			array(
+				'methods'  => WP_REST_Server::EDITABLE,
+				'callback' => array( $this, 'update_employee_attendance' ),
+				// 'permission_callback' => array( $this, 'check_site_permission' ),
+			)
+		);
+
+		register_rest_route(
+			'scebk/v1',
+			'/delete-employee-attendance/(?P<attendance_id>[\d]+)',
+			array(
+				'methods'  => WP_REST_Server::DELETABLE,
+				'callback' => array( $this, 'delete_employee_attendance' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
@@ -777,8 +879,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		global $wpdb;
 		$parameters  = $request->get_params();
-		$employee_id = $parameters['employee_id'];
-		if ( empty( $employee_id ) ) {
+		$emp_id = $parameters['emp_id'];
+		if ( empty( $emp_id ) ) {
 			return null;
 		}
 
@@ -822,7 +924,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 						FROM   $this->table_attendance 
 						GROUP BY $this->table_attendance.emp_id) AS attendance 
 					ON attendance.empid = emp.emp_id",
-			$employee_id
+			$emp_id
 		);
 		
 		$employees = $wpdb->get_results( $query, 'ARRAY_A' );
@@ -844,7 +946,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		global $wpdb;
 		$parameters = $request->get_params();
 		$where      = array(
-			'emp_id' => $parameters['employee_id'],
+			'emp_id' => $parameters['emp_id'],
 		);
 
 		$item = $wpdb->delete( $this->table_employee, $where ); //phpcs:ignore
@@ -924,6 +1026,336 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			return new WP_REST_Response(
 				array(
 					'message' => 'New Employee added successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function show_employee_all_expense_by_id( $request ) {
+
+		global $wpdb;
+		$parameters = $request->get_params();
+		$emp_id    = $parameters['emp_id'];
+
+		if ( empty( $emp_id ) ) {
+			return;
+		}
+
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"select * from $this->table_employee_expense where emp_id = %d",
+			$emp_id
+		);
+
+		$employee_expense = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
+
+		$response = new WP_REST_Response( $employee_expense );
+		$response->set_status( 200 );
+
+		return $response;
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function show_employee_expense_date( $request ) {
+
+		global $wpdb;
+		$parameters = $request->get_params();
+
+		if ( empty( $parameters['taken_on'] ) || empty( $parameters['emp_id'] ) ) {
+			return null;
+		}
+		$taken_on = $parameters['taken_on'];
+		$emp_id   = $parameters['emp_id'];
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"select * from $this->table_employee_expense where emp_id = %s and taken_on = %s",
+			$emp_id,
+			$taken_on
+		);
+		$employee_expense = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
+
+		$response = new WP_REST_Response( $employee_expense );
+		$response->set_status( 200 );
+
+		return $response;
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function add_new_employee_expense( $request ) {
+		global $wpdb;
+		$parameters = $request->get_params();
+		$emp_id     = $parameters['emp_id'];
+
+		if ( empty( $emp_id ) ) {
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		}
+
+		$default = array(
+			'emp_id'              => $emp_id,
+			'taken_from'          => '',
+			'amount'              => 0,
+			'expense_description' => '',
+			'taken_on'            => '',
+		);
+
+		$item = shortcode_atts( $default, $parameters );
+		$item = $wpdb->insert( $this->table_employee_expense, $item ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Employee expense added successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function update_employee_expense( $request ) {
+		global $wpdb;
+		$parameters = $request->get_params();
+		$where      = array(
+			'emp_expense_id' => $parameters['emp_expense_id'],
+		);
+
+		$item  = $wpdb->update( $this->table_employee_expense, $parameters, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Employee expense updated successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function delete_employee_expense( $request ) {
+
+		global $wpdb;
+		$parameters = $request->get_params();
+
+		if ( empty( $parameters['emp_expense_id'] ) ) {
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		}
+
+		$where = array(
+			'emp_expense_id' => $parameters['emp_expense_id'],
+		);
+
+		$item = $wpdb->delete( $this->table_employee_expense, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Employee expense deleted successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function show_employee_all_attendance_by_id( $request ) {
+
+		global $wpdb;
+		$parameters = $request->get_params();
+		$emp_id     = $parameters['emp_id'];
+
+		if ( empty( $emp_id ) ) {
+			return;
+		}
+
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"select * from $this->table_attendance where emp_id = %d",
+			$emp_id
+		);
+
+		$employee_attendance = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
+
+		$response = new WP_REST_Response( $employee_attendance );
+		$response->set_status( 200 );
+
+		return $response;
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function show_employee_attendance_date( $request ) {
+
+		global $wpdb;
+		$parameters = $request->get_params();
+
+		if ( empty( $parameters['worked_on'] ) || empty( $parameters['emp_id'] ) ) {
+			return null;
+		}
+		$worked_on = $parameters['worked_on'];
+		$emp_id   = $parameters['emp_id'];
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"select * from $this->table_attendance where emp_id = %s and worked_on = %s",
+			$emp_id,
+			$worked_on
+		);
+		$employee_attendance = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
+
+		$response = new WP_REST_Response( $employee_attendance );
+		$response->set_status( 200 );
+
+		return $response;
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function add_new_employee_attendance( $request ) {
+		global $wpdb;
+		$parameters = $request->get_params();
+		$emp_id     = $parameters['emp_id'];
+
+		if ( empty( $emp_id ) ) {
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		}
+
+		$default = array(
+			'emp_id'     => $emp_id,
+			'work_hour'  => 0,
+			'worked_on'  => ''
+		);
+
+		$item = shortcode_atts( $default, $parameters );
+		$item = $wpdb->insert( $this->table_attendance, $item ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Employee attendance added successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function update_employee_attendance( $request ) {
+		global $wpdb;
+		$parameters = $request->get_params();
+		$where      = array(
+			'attendance_id' => $parameters['attendance_id'],
+		);
+
+		$item  = $wpdb->update( $this->table_attendance, $parameters, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Employee attendance updated successfully',
+					'status'  => 200,
+				),
+				200
+			);
+		}
+
+		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Function get site details by user id.
+	 *
+	 * @param WP_REST_Request $request User request.
+	 * @return array $response Json data.
+	 */
+	public function delete_employee_attendance( $request ) {
+
+		global $wpdb;
+		$parameters = $request->get_params();
+
+		if ( empty( $parameters['attendance_id'] ) ) {
+			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		}
+
+		$where = array(
+			'attendance_id' => $parameters['attendance_id'],
+		);
+
+		$item = $wpdb->delete( $this->table_attendance, $where ); //phpcs:ignore
+
+		if ( ! empty( $item ) ) {
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Employee attendance deleted successfully',
 					'status'  => 200,
 				),
 				200
