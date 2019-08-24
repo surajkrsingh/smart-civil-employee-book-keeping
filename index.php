@@ -47,7 +47,7 @@ require_once SCEBK_PLUGIN_PATH . 'inc/customize-admin-site.php';
  * Activation of plugin.
  */
 function scebk_activation() {
-	$scebk_obj = scebk_plugin\SCEBK::get_instance();
+	$scebk_obj = scebk_plugin\Employee::get_instance();
 	$scebk_obj->create_employee_table();
 	$scebk_obj->create_employee_expense_table();
 	$scebk_obj->create_attendance_table();

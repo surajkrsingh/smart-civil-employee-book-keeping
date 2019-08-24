@@ -175,6 +175,7 @@ class Employee {
 				emp_expense_id bigint(20) NOT NULL AUTO_INCREMENT,
 				emp_id bigint(20) NOT NULL,
 				taken_from varchar(25) DEFAULT NULL,
+				amount bigint(20) DEFAULT 0,
 				expense_description varchar(15) DEFAULT NULL,
 				taken_on date,
 				PRIMARY KEY (emp_expense_id),
@@ -198,8 +199,7 @@ class Employee {
 				'CREATE TABLE IF NOT EXISTS `%1$s` (
 				attendance_id bigint(20) NOT NULL AUTO_INCREMENT,
 				emp_id bigint(20) NOT NULL,
-				attendance varchar(25) DEFAULT NULL,
-				overtime int(5) DEFAULT 0,
+				work_hour int(5) DEFAULT 0,
 				worked_on date,
 				PRIMARY KEY (attendance_id),
 				KEY attendance_id ( attendance_id )
