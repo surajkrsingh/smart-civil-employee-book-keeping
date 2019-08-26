@@ -16,7 +16,6 @@
  */
 class SCEBK_RestAPI extends WP_REST_Controller {
 
-
 	/**
 	 * Alias for site table.
 	 *
@@ -103,25 +102,26 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		add_action( 'rest_api_init', array( $this, 'register_custom_endpoints_for_site' ) );
 	}
 
-
 	/**
 	 * Function to resgiter custom endpoints for site info.
 	 */
 	public function register_custom_endpoints_for_site() {
+
+		// Add new site by user id.
 		register_rest_route(
 			'scebk/v1',
 			'/add-site',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'add_new_site' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
+
 		register_rest_route(
 			'scebk/v1',
 			'/update-site',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_site' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -129,47 +129,40 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/delete-site/(?P<site_id>[\d]+)',
+			'/delete-site',
 			array(
-				'methods'  => WP_REST_Server::DELETABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_site' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Show a particular site details by site id.
 		register_rest_route(
 			'scebk/v1',
-			'/show-site/(?P<site_id>[\d]+)',
+			'/show-site',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_site' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Show a all site details by user id.
 		register_rest_route(
 			'scebk/v1',
-			'/all-site/(?P<user_id>[\d]+)',
+			'/show-all-site',
 			array(
-				'method'   => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'show_all_site_by_user_id' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
-				'args'     => array(
-					'context'       => array(
-						'default' => 'view',
-					),
-					'wp_rest_nonce' => array(
-						'validate_callback' => array( $this, 'create_wp_rest_nonce' ),
-					),
-				),
+				'method'   => WP_REST_Server::CREATABLE,
+				'callback' => array( $this, 'show_all_site' ),
 			)
 		);
 
+		// User authentication.
 		register_rest_route(
 			'scebk/v1',
 			'/login',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'login_in_site' ),
 			)
 		);
@@ -177,11 +170,10 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		// Site expense routes.
 		register_rest_route(
 			'scebk/v1',
-			'/show-site-all-expense/(?P<site_id>[\d]+)',
+			'/show-site-all-expense',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'show_site_all_expense_by_id' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
+				'methods'  => WP_REST_Server::CREATABLE,
+				'callback' => array( $this, 'show_site_all_expense' )
 			)
 		);
 
@@ -189,7 +181,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/show-site-expense',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_site_expense_date' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -209,7 +201,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/update-site-expense',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_site_expense' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -217,9 +209,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/delete-site-expense/(?P<site_expense_id>[\d]+)',
+			'/delete-site-expense',
 			array(
-				'methods'  => WP_REST_Server::DELETABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_expense_site' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -228,9 +220,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		// Employee related task.
 		register_rest_route(
 			'scebk/v1',
-			'/show-all-employee/(?P<site_id>[\d]+)',
+			'/show-all-employee',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_all_employee' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -238,9 +230,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/show-employee/(?P<emp_id>[\d]+)',
+			'/show-employee',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -258,9 +250,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/delete-employee/(?P<emp_id>[\d]+)',
+			'/delete-employee',
 			array(
-				'methods'  => WP_REST_Server::DELETABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_employee' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -270,7 +262,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/update-employee',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_employee' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -279,9 +271,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		// Employee expense routes.
 		register_rest_route(
 			'scebk/v1',
-			'/show-employee-all-expense/(?P<emp_id>[\d]+)',
+			'/show-employee-all-expense',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_all_expense_by_id' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -291,7 +283,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/show-employee-expense',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_expense_date' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -311,7 +303,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/update-employee-expense',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_employee_expense' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -319,9 +311,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/delete-employee-expense/(?P<emp_expense_id>[\d]+)',
+			'/delete-employee-expense',
 			array(
-				'methods'  => WP_REST_Server::DELETABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_employee_expense' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -330,9 +322,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		// Employee attendance routes.
 		register_rest_route(
 			'scebk/v1',
-			'/show-employee-all-attendance/(?P<emp_id>[\d]+)',
+			'/show-employee-all-attendance',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_all_attendance_by_id' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -342,7 +334,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/show-employee-attendance',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_attendance_date' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -362,7 +354,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			'scebk/v1',
 			'/update-employee-attendance',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_employee_attendance' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -370,9 +362,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		register_rest_route(
 			'scebk/v1',
-			'/delete-employee-attendance/(?P<attendance_id>[\d]+)',
+			'/delete-employee-attendance',
 			array(
-				'methods'  => WP_REST_Server::DELETABLE,
+				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_employee_attendance' ),
 				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
@@ -386,7 +378,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @param WP_REST_Request $request User request.
 	 * @return array $response Json data.
 	 */
-	public function show_all_site_by_user_id( $request ) {
+	public function show_all_site( $request ) {
 		global $wpdb;
 		$parameters = $request->get_params();
 		$user_id    = $parameters['user_id'];
@@ -421,7 +413,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 							site_height, 
 							site_pic_path, 
 							site_status, 
-							Sum(amount) AS total_amount 
+							sum(amount) AS total_amount 
 					FROM   $this->table_site 
 							LEFT JOIN $this->table_site_expense 
 								ON $this->table_site_expense.site_id = 
@@ -449,15 +441,24 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function get add a new site for a user.
 	 *
-	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @param WP_REST_Request $request Request.
+	 * @return array
 	 */
 	public function add_new_site( $request ) {
 		global $wpdb;
-		$parameters = $request->get_params();
-		$default    = array(
+		$parameters = json_decode( $request->get_body(), true );
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+
+		$default = array(
 			'user_id'         => get_current_user_id(),
 			'site_name'       => '',
 			'site_contractor' => '',
@@ -483,7 +484,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'something-wrong', __( 'Unable to create a site please try again', 'scebk' ), array( 'status' => 500 ) );
 	}
 
 	/**
@@ -545,64 +546,64 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to get details of a site .
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_site( $request ) {
 		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters = json_decode( $request->get_body(), true );
 		$site_id    = $parameters['site_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $site_id ) ) {
-			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		if ( empty( $site_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
-		$site = get_transient( 'site' . $site_id );
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"SELECT site.site_id, 
+				site_name, 
+				site_contractor, 
+				site_address, 
+				site_start_date, 
+				site_rate, 
+				site_height, 
+				site_pic_path, 
+				site_status, 
+				total_amount, 
+				total_employee 
+			FROM
+				(SELECT $this->table_site.site_id, 
+						site_name, 
+						site_contractor, 
+						site_address, 
+						site_start_date, 
+						site_rate, 
+						site_height, 
+						site_pic_path, 
+						site_status, 
+						sum(amount) AS total_amount 
+				FROM   $this->table_site 
+						LEFT JOIN $this->table_site_expense 
+							ON $this->table_site_expense.site_id = 
+								$this->table_site.site_id 
+				WHERE  $this->table_site.site_id = %d 
+				GROUP BY $this->table_site.site_id) AS site 
+				LEFT JOIN (SELECT $this->table_employee.site_id AS emp_site_id, 
+								COUNT(emp_id)                 AS total_employee 
+						FROM   $this->table_employee 
+						GROUP BY $this->table_employee.site_id) AS emp 
+					ON site.site_id = emp.emp_site_id",
+			$site_id
+		);
+
+		$site = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
 
 		if ( empty( $site ) ) {
-			// @codingStandardsIgnoreStart
-			$query = $wpdb->prepare(
-				"SELECT site.site_id, 
-					site_name, 
-					site_contractor, 
-					site_address, 
-					site_start_date, 
-					site_rate, 
-					site_height, 
-					site_pic_path, 
-					site_status, 
-					total_amount, 
-					total_employee 
-				FROM
-					(SELECT $this->table_site.site_id, 
-							site_name, 
-							site_contractor, 
-							site_address, 
-							site_start_date, 
-							site_rate, 
-							site_height, 
-							site_pic_path, 
-							site_status, 
-							Sum(amount) AS total_amount 
-					FROM   $this->table_site 
-							LEFT JOIN $this->table_site_expense 
-								ON $this->table_site_expense.site_id = 
-									$this->table_site.site_id 
-					WHERE  $this->table_site.site_id = %d 
-					GROUP BY $this->table_site.site_id) AS site 
-					LEFT JOIN (SELECT $this->table_employee.site_id AS emp_site_id, 
-									COUNT(emp_id)                 AS total_employee 
-							FROM   $this->table_employee 
-							GROUP BY $this->table_employee.site_id) AS emp 
-						ON site.site_id = emp.emp_site_id",
-				$site_id
-			);
-			$site = $wpdb->get_results( $query, 'ARRAY_A' );
-
-			// @codingStandardsIgnoreEnd
-			set_transient( 'site' . $site_id, $site, 60 );
+			return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 		}
 
 		$response = new WP_REST_Response( $site );
@@ -612,29 +613,43 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to authenticate the user.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function login_in_site( $request ) {
 		global $wpdb;
-		$table_site = $wpdb->prefix . 'users';
-		$parameters = $request->get_params();
-		$response   = wp_authenticate( $parameters['user_name'], $parameters['user_password'] );
-		if ( ! empty( $response->data ) ) {
 
-			return new WP_REST_Response(
-				array(
-					'user-info' => $response,
-					'message'   => 'Logged in successfully',
-					'status'    => 200,
-				),
-				200
-			);
+		$table_site = $wpdb->prefix . 'users';
+		$parameters = json_decode( $request->get_body(), true );
+
+		if ( empty( $parameters['user_name'] ) || empty( $parameters['user_password'] ) ) {
+			return new WP_Error( 'Invalid', __( 'Invalid authentication', 'scebk' ), array( 'status' => 401 ) );
 		}
 
-		return new WP_Error( 'unauthenticated', __( 'Invalid authentication', 'scebk' ), array( 'status' => 401 ) );
+		$response = wp_authenticate( $parameters['user_name'], $parameters['user_password'] );
+
+		if ( ! empty( $response->data->ID ) ) {
+
+			$token  = bin2hex( openssl_random_pseudo_bytes( 64 ) );
+			$status = update_user_meta( $response->data->ID, 'auth_token', $token );
+			if ( ! empty( $status ) ) {
+
+				return new WP_REST_Response(
+					array(
+						'user_id'    => $response->data->ID,
+						'user_name'  => $response->data->display_name,
+						'auth_token' => $token,
+						'message'    => 'Logged in successfully',
+						'status'     => 200,
+					),
+					200
+				);
+			}
+		}
+
+		return new WP_Error( 'Invalid', __( 'Invalid authentication', 'scebk' ), array( 'status' => 401 ) );
 	}
 
 	/**
@@ -678,19 +693,20 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to get expense of a particluar site by id.
 	 *
 	 * @param WP_REST_Request $request User request.
 	 * @return array $response Json data.
 	 */
-	public function show_site_all_expense_by_id( $request ) {
+	public function show_site_all_expense( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters = json_decode( $request->get_body(), true );
 		$site_id    = $parameters['site_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $site_id ) ) {
-			return;
+		if ( empty( $site_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
 		// @codingStandardsIgnoreStart
@@ -698,11 +714,14 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			"select * from $this->table_site_expense where site_id = %d",
 			$site_id
 		);
-
-		$site = $wpdb->get_results( $query, 'ARRAY_A' );
+		$site_expense = $wpdb->get_results( $query, 'ARRAY_A' );
 		// @codingStandardsIgnoreEnd
 
-		$response = new WP_REST_Response( $site );
+		if ( empty( $site_expense ) ) {
+			return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
+		}
+
+		$response = new WP_REST_Response( $site_expense );
 		$response->set_status( 200 );
 
 		return $response;
@@ -836,18 +855,18 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 					total_work 
 			FROM  
 				(SELECT $this->table_employee.emp_id, 
-							emp_name, 
-							emp_ac, 
-							emp_phone, 
-							emp_address, 
-							emp_join_date, 
-							emp_leave_date, 
-							emp_rate, 
-							emp_aadhar_no, 
-							emp_designation, 
-							emp_pic_path, 
-							emp_status, 
-						Sum(amount) AS total_expense 
+					emp_name, 
+					emp_ac, 
+					emp_phone, 
+					emp_address, 
+					emp_join_date, 
+					emp_leave_date, 
+					emp_rate, 
+					emp_aadhar_no, 
+					emp_designation, 
+					emp_pic_path, 
+					emp_status, 
+					sum(amount) AS total_expense 
 				FROM   $this->table_employee 
 						LEFT JOIN $this->table_employee_expense 
 							ON $this->table_employee_expense.emp_id = $this->table_employee.emp_id 
@@ -878,8 +897,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	public function show_employee( $request ) {
 
 		global $wpdb;
-		$parameters  = $request->get_params();
-		$emp_id = $parameters['emp_id'];
+		$parameters = $request->get_params();
+		$emp_id     = $parameters['emp_id'];
 		if ( empty( $emp_id ) ) {
 			return null;
 		}
@@ -902,25 +921,25 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 					total_work
 			FROM  
 				(SELECT $this->table_employee.emp_id, 
-							emp_name, 
-							emp_ac, 
-							emp_phone, 
-							emp_address, 
-							emp_join_date, 
-							emp_leave_date, 
-							emp_rate, 
-							emp_aadhar_no, 
-							emp_designation, 
-							emp_pic_path, 
-							emp_status, 
-						Sum(amount) AS total_expense 
+					emp_name, 
+					emp_ac, 
+					emp_phone, 
+					emp_address, 
+					emp_join_date, 
+					emp_leave_date, 
+					emp_rate, 
+					emp_aadhar_no, 
+					emp_designation, 
+					emp_pic_path, 
+					emp_status, 
+					sum(amount) AS total_expense 
 				FROM   $this->table_employee 
-						LEFT JOIN $this->table_employee_expense 
-							ON $this->table_employee_expense.emp_id = $this->table_employee.emp_id 
+					LEFT JOIN $this->table_employee_expense 
+						ON $this->table_employee_expense.emp_id = $this->table_employee.emp_id 
 				WHERE  $this->table_employee.emp_id = %d
 				GROUP BY $this->table_employee.emp_id ) AS emp 
 				LEFT JOIN (SELECT $this->table_attendance.emp_id AS empID, 
-								Sum(work_hour)       AS total_work 
+							sum(work_hour)       AS total_work 
 						FROM   $this->table_attendance 
 						GROUP BY $this->table_attendance.emp_id) AS attendance 
 					ON attendance.empid = emp.emp_id",
@@ -1045,7 +1064,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		global $wpdb;
 		$parameters = $request->get_params();
-		$emp_id    = $parameters['emp_id'];
+		$emp_id     = $parameters['emp_id'];
 
 		if ( empty( $emp_id ) ) {
 			return;
@@ -1247,7 +1266,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			return null;
 		}
 		$worked_on = $parameters['worked_on'];
-		$emp_id   = $parameters['emp_id'];
+		$emp_id    = $parameters['emp_id'];
 		// @codingStandardsIgnoreStart
 		$query = $wpdb->prepare(
 			"select * from $this->table_attendance where emp_id = %s and worked_on = %s",
@@ -1279,9 +1298,9 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		}
 
 		$default = array(
-			'emp_id'     => $emp_id,
-			'work_hour'  => 0,
-			'worked_on'  => ''
+			'emp_id'    => $emp_id,
+			'work_hour' => 0,
+			'worked_on' => '',
 		);
 
 		$item = shortcode_atts( $default, $parameters );
