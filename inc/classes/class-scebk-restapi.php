@@ -78,10 +78,12 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @return SCEBK_RestAPI instance.
 	 */
 	final public static function get_instance() {
+
 		if ( ! isset( static::$instance ) ) {
 			static::$instance = new SCEBK_RestAPI();
 			static::$instance->setup();
 		}
+
 		return self::$instance;
 	}
 
@@ -117,23 +119,23 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			)
 		);
 
+		// Update existing site by user.
 		register_rest_route(
 			'scebk/v1',
 			'/update-site',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_site' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Delete exising site bu user.
 		register_rest_route(
 			'scebk/v1',
 			'/delete-site',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_site' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
@@ -147,7 +149,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			)
 		);
 
-		// Show a all site details by user id.
+		// Show all site details by user id. Pending to convert by token.
 		register_rest_route(
 			'scebk/v1',
 			'/show-all-site',
@@ -167,216 +169,212 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			)
 		);
 
-		// Site expense routes.
+		// Show expense of a particular site taken from contractor.
 		register_rest_route(
 			'scebk/v1',
 			'/show-site-all-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'show_site_all_expense' )
+				'callback' => array( $this, 'show_site_all_expense' ),
 			)
 		);
 
+		// Show a particular expense of a particular site taken from contractor by given date.
 		register_rest_route(
 			'scebk/v1',
 			'/show-site-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_site_expense_date' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Add new expense for site taken from contractor.
 		register_rest_route(
 			'scebk/v1',
 			'/add-site-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'add_new_site_expense' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Update expense for site taken from contractor.
 		register_rest_route(
 			'scebk/v1',
 			'/update-site-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_site_expense' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Delete a particular expense for site.
 		register_rest_route(
 			'scebk/v1',
 			'/delete-site-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_expense_site' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
-		// Employee related task.
+		// Show all employee of a particular site.
 		register_rest_route(
 			'scebk/v1',
 			'/show-all-employee',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_all_employee' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Show a particular employee details.
 		register_rest_route(
 			'scebk/v1',
 			'/show-employee',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Add new employee for site.
 		register_rest_route(
 			'scebk/v1',
 			'/add-employee',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'add_new_employee' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Delete the employee.
 		register_rest_route(
 			'scebk/v1',
 			'/delete-employee',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_employee' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Update employee details.
 		register_rest_route(
 			'scebk/v1',
 			'/update-employee',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_employee' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
-		// Employee expense routes.
+		// Show all expense for an employee.
 		register_rest_route(
 			'scebk/v1',
 			'/show-employee-all-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_all_expense_by_id' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Show a particluar employee expense per date.
 		register_rest_route(
 			'scebk/v1',
 			'/show-employee-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_expense_date' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Add new expense for employee.
 		register_rest_route(
 			'scebk/v1',
 			'/add-employee-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'add_new_employee_expense' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Update employee expense.
 		register_rest_route(
 			'scebk/v1',
 			'/update-employee-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_employee_expense' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Delete the employee expense.
 		register_rest_route(
 			'scebk/v1',
 			'/delete-employee-expense',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_employee_expense' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
-		// Employee attendance routes.
+		// Show all attendance for employee.
 		register_rest_route(
 			'scebk/v1',
 			'/show-employee-all-attendance',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_all_attendance_by_id' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Show employee attendance for a particular day.
 		register_rest_route(
 			'scebk/v1',
 			'/show-employee-attendance',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'show_employee_attendance_date' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Add new attendance of employees.
 		register_rest_route(
 			'scebk/v1',
 			'/add-employee-attendance',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'add_new_employee_attendance' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Update attendance for employee.
 		register_rest_route(
 			'scebk/v1',
 			'/update-employee-attendance',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'update_employee_attendance' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
 
+		// Delete attendance of an employee.
 		register_rest_route(
 			'scebk/v1',
 			'/delete-employee-attendance',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'delete_employee_attendance' ),
-				// 'permission_callback' => array( $this, 'check_site_permission' ),
 			)
 		);
-
 	}
 
 	/**
 	 * Function get site details by user id.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_all_site( $request ) {
 		global $wpdb;
@@ -387,12 +385,21 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
 		}
 
-		$sites = get_transient( 'user' . $user_id );
-
-		if ( empty( $sites ) ) {
-			// @codingStandardsIgnoreStart
-			$query = $wpdb->prepare(
-				"SELECT site.site_id, 
+		// @codingStandardsIgnoreStart
+		$query = $wpdb->prepare(
+			"SELECT site.site_id, 
+					site_name, 
+					site_contractor, 
+					site_address, 
+					site_start_date, 
+					site_rate, 
+					site_height, 
+					site_pic_path, 
+					site_status, 
+					total_amount, 
+					total_employee 
+			FROM  
+				(SELECT $this->table_site.site_id, 
 						site_name, 
 						site_contractor, 
 						site_address, 
@@ -401,38 +408,23 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 						site_height, 
 						site_pic_path, 
 						site_status, 
-						total_amount, 
-						total_employee 
-				FROM  
-					(SELECT $this->table_site.site_id, 
-							site_name, 
-							site_contractor, 
-							site_address, 
-							site_start_date, 
-							site_rate, 
-							site_height, 
-							site_pic_path, 
-							site_status, 
-							sum(amount) AS total_amount 
-					FROM   $this->table_site 
-							LEFT JOIN $this->table_site_expense 
-								ON $this->table_site_expense.site_id = 
-									$this->table_site.site_id 
-					WHERE  user_id = %d 
-					GROUP BY $this->table_site.site_id) AS site 
-				LEFT JOIN (SELECT $this->table_employee.site_id AS emp_site_id, 
-								  COUNT(emp_id)                 AS total_employee 
-						   FROM   $this->table_employee 
-						   GROUP BY $this->table_employee.site_id) AS emp 
-					   ON site.site_id = emp.emp_site_id",
-				$user_id
-			);
-			
-			$sites = $wpdb->get_results( $query, 'ARRAY_A' );
-			//error_log( print_r($sites,true) );die();
-			// @codingStandardsIgnoreEnd
-			set_transient( 'user' . $user_id, $sites, 60 );
-		}
+						sum(amount) AS total_amount 
+				FROM   $this->table_site 
+						LEFT JOIN $this->table_site_expense 
+							ON $this->table_site_expense.site_id = 
+								$this->table_site.site_id 
+				WHERE  user_id = %d 
+				GROUP BY $this->table_site.site_id) AS site 
+			LEFT JOIN (SELECT $this->table_employee.site_id AS emp_site_id, 
+								COUNT(emp_id)                 AS total_employee 
+						FROM   $this->table_employee 
+						GROUP BY $this->table_employee.site_id) AS emp 
+					ON site.site_id = emp.emp_site_id",
+			$user_id
+		);
+		
+		$sites = $wpdb->get_results( $query, 'ARRAY_A' );
+		// @codingStandardsIgnoreEnd
 
 		$response = new WP_REST_Response( $sites );
 		$response->set_status( 200 );
@@ -447,7 +439,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * @return array
 	 */
 	public function add_new_site( $request ) {
-		global $wpdb;
+
 		$parameters = json_decode( $request->get_body(), true );
 		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
 
@@ -471,6 +463,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		);
 
 		$item = shortcode_atts( $default, $parameters );
+
+		global $wpdb;
 		$item = $wpdb->insert( $this->table_site, $item ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -491,15 +485,25 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * Function get site details by user id.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function update_site( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$where      = array(
+
+		$parameters = json_decode( $request->get_body(), true );
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $parameters['site_id'] ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+
+		$where = array(
 			'site_id' => $parameters['site_id'],
 		);
 
+		global $wpdb;
 		$item = $wpdb->update( $this->table_site, $parameters, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -513,7 +517,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Enable to update the data', 'text-domain' ), array( 'status' => 500 ) );
 	}
 
 
@@ -521,15 +525,26 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * Function get site details by user id.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function delete_site( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$where      = array(
+
+		$parameters = json_decode( $request->get_body(), true );
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $parameters['site_id'] ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+
+		$where = array(
 			'site_id' => $parameters['site_id'],
 		);
-		$item       = $wpdb->delete( $this->table_site, $where ); //phpcs:ignore
+
+		global $wpdb;
+		$item = $wpdb->delete( $this->table_site, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
 
@@ -653,19 +668,23 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function get add new expense for site.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function add_new_site_expense( $request ) {
 		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters = json_decode( $request->get_body(), true );
 		$site_id    = $parameters['site_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $site_id ) ) {
-			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $site_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
 
 		$default = array(
 			'site_id'             => $site_id,
@@ -682,7 +701,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 			return new WP_REST_Response(
 				array(
-					'message' => 'New site expensecreated successfully',
+					'message' => 'Added new expense successfully',
 					'status'  => 200,
 				),
 				200
@@ -696,7 +715,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	 * Function to get expense of a particluar site by id.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_site_all_expense( $request ) {
 
@@ -728,21 +747,23 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function get expense site for particular date.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_site_expense_date( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters = json_decode( $request->get_body(), true );
+		$site_id    = $parameters['site_id'];
+		$taken_on   = $parameters['taken_on'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $parameters['taken_on'] ) || empty( $parameters['site_id'] ) ) {
-			return null;
+		if ( empty( $site_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) || empty( $taken_on ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
-		$taken_on = $parameters['taken_on'];
-		$site_id  = $parameters['site_id'];
+
 		// @codingStandardsIgnoreStart
 		$query = $wpdb->prepare(
 			"select * from $this->table_site_expense where site_id = %s and taken_on = %s",
@@ -759,24 +780,30 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function delete a particuar expense from site.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function delete_expense_site( $request ) {
 
-		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters      = json_decode( $request->get_body(), true );
+		$site_expense_id = $parameters['site_expense_id'];
+		$token           = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $parameters['site_expense_id'] ) ) {
-			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $site_expense_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
+
 		$where = array(
-			'site_expense_id' => $parameters['site_expense_id'],
+			'site_expense_id' => $site_expense_id,
 		);
 
+		global $wpdb;
 		$item = $wpdb->delete( $this->table_site_expense, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -790,22 +817,34 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
 	 * Function get site details by user id.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function update_site_expense( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$where      = array(
-			'site_expense_id' => $parameters['site_expense_id'],
+
+		$parameters      = json_decode( $request->get_body(), true );
+		$site_expense_id = $parameters['site_expense_id'];
+		$token           = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $site_expense_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
+
+		$where = array(
+			'site_expense_id' => $site_expense_id,
 		);
 
+		global $wpdb;
 		$item  = $wpdb->update( $this->table_site_expense, $parameters, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -819,22 +858,25 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to show all employee for a site.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_all_employee( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
+
+		$parameters = json_decode( $request->get_body(), true );
 		$site_id    = $parameters['site_id'];
-		if ( empty( $site_id ) ) {
-			return null;
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $site_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
 		// @codingStandardsIgnoreStart
@@ -889,18 +931,20 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Show a particular employee details.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_employee( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters = json_decode( $request->get_body(), true );
 		$emp_id     = $parameters['emp_id'];
-		if ( empty( $emp_id ) ) {
-			return null;
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $emp_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
 		// @codingStandardsIgnoreStart
@@ -956,16 +1000,24 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to delete employee for a site.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function delete_employee( $request ) {
 		global $wpdb;
-		$parameters = $request->get_params();
-		$where      = array(
-			'emp_id' => $parameters['emp_id'],
+
+		$parameters = json_decode( $request->get_body(), true );
+		$emp_id     = $parameters['emp_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $emp_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		$where = array(
+			'emp_id' => $emp_id,
 		);
 
 		$item = $wpdb->delete( $this->table_employee, $where ); //phpcs:ignore
@@ -981,22 +1033,34 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to update the employee dretails.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function update_employee( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$where      = array(
-			'emp_id' => $parameters['emp_id'],
+
+		$parameters = json_decode( $request->get_body(), true );
+		$emp_id     = $parameters['emp_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $emp_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
+
+		$where = array(
+			'emp_id' => $emp_id,
 		);
 
+		global $wpdb;
 		$item = $wpdb->update( $this->table_employee, $parameters, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -1010,27 +1074,39 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to add new employee for site.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function add_new_employee( $request ) {
+
 		global $wpdb;
-		$parameters = $request->get_params();
-		$default    = array(
-			'site_id'         => $parameters['site_id'],
+		$parameters = json_decode( $request->get_body(), true );
+		$site_id    = $parameters['site_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $site_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
+
+		$default = array(
+			'site_id'         => $site_id,
 			'emp_name'        => '',
 			'emp_phone'       => '',
 			'emp_ac'          => '',
 			'emp_address'     => '',
 			'emp_join_date'   => '',
 			'emp_leave_date'  => '',
-			'emp_rate'        => '',
+			'emp_rate'        => 0,
 			'emp_aadhar_no'   => '',
 			'emp_designation' => '',
 			'emp_pic_path'    => '',
@@ -1051,23 +1127,25 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to show all expense for an emplyee.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_employee_all_expense_by_id( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
-		$emp_id     = $parameters['emp_id'];
 
-		if ( empty( $emp_id ) ) {
-			return;
+		$parameters = json_decode( $request->get_body(), true );
+		$emp_id     = $parameters['emp_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $emp_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
 		// @codingStandardsIgnoreStart
@@ -1086,21 +1164,23 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to show a particular date wise employee expense.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_employee_expense_date( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters = json_decode( $request->get_body(), true );
+		$emp_id     = $parameters['emp_id'];
+		$taken_on   = $parameters['taken_on'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $parameters['taken_on'] ) || empty( $parameters['emp_id'] ) ) {
-			return null;
+		if ( empty( $emp_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) || empty( $taken_on ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
-		$taken_on = $parameters['taken_on'];
-		$emp_id   = $parameters['emp_id'];
+
 		// @codingStandardsIgnoreStart
 		$query = $wpdb->prepare(
 			"select * from $this->table_employee_expense where emp_id = %s and taken_on = %s",
@@ -1117,19 +1197,24 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to add new expense of employee.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function add_new_employee_expense( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$emp_id     = $parameters['emp_id'];
 
-		if ( empty( $emp_id ) ) {
-			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		$parameters = json_decode( $request->get_body(), true );
+		$emp_id     = $parameters['emp_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( empty( $emp_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
 
 		$default = array(
 			'emp_id'              => $emp_id,
@@ -1140,6 +1225,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		);
 
 		$item = shortcode_atts( $default, $parameters );
+
+		global $wpdb;
 		$item = $wpdb->insert( $this->table_employee_expense, $item ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -1153,22 +1240,34 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to update employee expense.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function update_employee_expense( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$where      = array(
-			'emp_expense_id' => $parameters['emp_expense_id'],
+
+		$parameters     = json_decode( $request->get_body(), true );
+		$emp_expense_id = $parameters['emp_expense_id'];
+		$token          = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( empty( $emp_expense_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
+
+		$where = array(
+			'emp_expense_id' => $emp_expense_id,
 		);
 
+		global $wpdb;
 		$item  = $wpdb->update( $this->table_employee_expense, $parameters, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -1182,28 +1281,30 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to delete the employee expense.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function delete_employee_expense( $request ) {
 
-		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters     = json_decode( $request->get_body(), true );
+		$emp_expense_id = $parameters['emp_expense_id'];
+		$token          = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $parameters['emp_expense_id'] ) ) {
-			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		if ( empty( $emp_expense_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
 		$where = array(
-			'emp_expense_id' => $parameters['emp_expense_id'],
+			'emp_expense_id' => $emp_expense_id,
 		);
 
+		global $wpdb;
 		$item = $wpdb->delete( $this->table_employee_expense, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -1217,23 +1318,25 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to show the all attendance of an employee.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_employee_all_attendance_by_id( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
-		$emp_id     = $parameters['emp_id'];
 
-		if ( empty( $emp_id ) ) {
-			return;
+		$parameters = json_decode( $request->get_body(), true );
+		$emp_id     = $parameters['emp_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $emp_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
 		// @codingStandardsIgnoreStart
@@ -1252,21 +1355,23 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to show attendance for a particular day.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function show_employee_attendance_date( $request ) {
 
 		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters = json_decode( $request->get_body(), true );
+		$worked_on  = $parameters['worked_on'];
+		$emp_id     = $parameters['emp_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $parameters['worked_on'] ) || empty( $parameters['emp_id'] ) ) {
-			return null;
+		if ( empty( $emp_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) || empty( $worked_on ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
-		$worked_on = $parameters['worked_on'];
-		$emp_id    = $parameters['emp_id'];
+
 		// @codingStandardsIgnoreStart
 		$query = $wpdb->prepare(
 			"select * from $this->table_attendance where emp_id = %s and worked_on = %s",
@@ -1283,19 +1388,24 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to add attendace of an employee.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function add_new_employee_attendance( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$emp_id     = $parameters['emp_id'];
 
-		if ( empty( $emp_id ) ) {
-			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		$parameters = json_decode( $request->get_body(), true );
+		$emp_id     = $parameters['emp_id'];
+		$token      = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( $parameters['auth_token'] !== $token[0] || empty( $parameters['user_id'] ) || empty( $emp_id ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
 
 		$default = array(
 			'emp_id'    => $emp_id,
@@ -1304,6 +1414,8 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 		);
 
 		$item = shortcode_atts( $default, $parameters );
+
+		global $wpdb;
 		$item = $wpdb->insert( $this->table_attendance, $item ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -1317,22 +1429,34 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to update the attendace of an enmployee.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function update_employee_attendance( $request ) {
-		global $wpdb;
-		$parameters = $request->get_params();
-		$where      = array(
-			'attendance_id' => $parameters['attendance_id'],
+
+		$parameters    = json_decode( $request->get_body(), true );
+		$attendance_id = $parameters['attendance_id'];
+		$token         = get_user_meta( $parameters['user_id'], 'auth_token' );
+
+		if ( empty( $attendance_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
+		}
+
+		// Remove auth-token after verify.
+		unset( $parameters['auth_token'] );
+		unset( $parameters['user_id'] );
+
+		$where = array(
+			'attendance_id' => $attendance_id,
 		);
 
+		global $wpdb;
 		$item  = $wpdb->update( $this->table_attendance, $parameters, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -1346,28 +1470,30 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
-	 * Function get site details by user id.
+	 * Function to delete attendance of an employee.
 	 *
 	 * @param WP_REST_Request $request User request.
-	 * @return array $response Json data.
+	 * @return array
 	 */
 	public function delete_employee_attendance( $request ) {
 
-		global $wpdb;
-		$parameters = $request->get_params();
+		$parameters    = json_decode( $request->get_body(), true );
+		$attendance_id = $parameters['attendance_id'];
+		$token         = get_user_meta( $parameters['user_id'], 'auth_token' );
 
-		if ( empty( $parameters['attendance_id'] ) ) {
-			return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		if ( empty( $attendance_id ) || $parameters['auth_token'] !== $token[0] || empty( $token ) ) {
+			return new WP_Error( 'invalid-request', __( 'Your request is invalid', 'scebk' ), array( 'status' => 500 ) );
 		}
 
 		$where = array(
-			'attendance_id' => $parameters['attendance_id'],
+			'attendance_id' => $attendance_id,
 		);
 
+		global $wpdb;
 		$item = $wpdb->delete( $this->table_attendance, $where ); //phpcs:ignore
 
 		if ( ! empty( $item ) ) {
@@ -1381,7 +1507,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_Error( 'can`t-create', __( 'message', 'text-domain' ), array( 'status' => 500 ) );
+		return new WP_Error( 'not-found', __( 'Data not found', 'scebk' ), array( 'status' => 404 ) );
 	}
 
 	/**
