@@ -881,14 +881,14 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 
 		// @codingStandardsIgnoreStart
 		$query = $wpdb->prepare(
-			"SELECT emp.emp_id, 
-					emp_name, 
-					emp_ac, 
-					emp_phone, 
-					emp_address, 
-					emp_join_date, 
-					emp_leave_date, 
-					emp_rate, 
+			"SELECT emp.emp_id,
+					emp_name,
+					emp_ac,
+					emp_phone,
+					emp_address,
+					emp_join_date,
+					emp_leave_date,
+					emp_rate,
 					emp_aadhar_no, 
 					emp_designation, 
 					emp_pic_path, 
@@ -898,16 +898,16 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 			FROM  
 				(SELECT $this->table_employee.emp_id, 
 					emp_name, 
-					emp_ac, 
-					emp_phone, 
-					emp_address, 
-					emp_join_date, 
-					emp_leave_date, 
-					emp_rate, 
-					emp_aadhar_no, 
-					emp_designation, 
-					emp_pic_path, 
-					emp_status, 
+					emp_ac,
+					emp_phone,
+					emp_address,
+					emp_join_date,
+					emp_leave_date,
+					emp_rate,
+					emp_aadhar_no,
+					emp_designation,
+					emp_pic_path,
+					emp_status,
 					sum(amount) AS total_expense 
 				FROM   $this->table_employee 
 						LEFT JOIN $this->table_employee_expense 
@@ -1529,6 +1529,7 @@ class SCEBK_RestAPI extends WP_REST_Controller {
 	}
 
 }
+
 require_once ABSPATH . 'wp-includes/rest-api/class-wp-rest-request.php';
 require_once ABSPATH . '/wp-includes/pluggable.php';
 SCEBK_RestAPI::get_instance();
